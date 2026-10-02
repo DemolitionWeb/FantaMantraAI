@@ -6,6 +6,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from ai_coach import costruisci_contesto_asta, crea_coach, chiedi_consiglio
+from analytics.availability_engine import analizza_disponibilita, prossima_partita
 from auction_engine import crediti_rimanenti, offerta_massima, percentuale_budget_speso
 from database import carica_rosa
 from player_identity import trova_giocatore_per_nome
@@ -65,6 +66,25 @@ def carica_prototipo() -> str:
     """
     profilo_html = ""
     if profilo:
+        try:
+            disponibilita = analizza_disponibilita(profilo["id"])
+            partita = prossima_partita(profilo["squadra"])
+            stato_disponibilita = (
+                "Non disponibile"
+                if disponibilita.get("infortunato")
+                else "Disponibile"
+                if disponibilita.get("disponibile")
+                else "Dato non disponibile"
+            )
+            prossima = (
+                f"{partita['casa']} - {partita['trasferta']} · {partita['kickoff']}"
+                if partita
+                else "Nessuna partita programmata"
+            )
+        except Exception:
+            stato_disponibilita = "Dato non disponibile"
+            prossima = "Dato non disponibile"
+
         iniziali = "".join(
             parte[0] for parte in profilo["nome"].split()[:2] if parte
         ).upper()
@@ -75,6 +95,7 @@ def carica_prototipo() -> str:
               <small>Profilo verificato</small>
               <strong>{escape(profilo['nome'])}</strong>
               <small>{escape(profilo['squadra'] or 'Squadra non disponibile')} · Ruoli: {escape(profilo['ruoli_mantra'] or 'non disponibili')}</small>
+              <small>Disponibilità: {escape(stato_disponibilita)} · Prossima: {escape(prossima)}</small>
             </div>
           </section>
         """
