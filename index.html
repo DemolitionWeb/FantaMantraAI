@@ -1,0 +1,133 @@
+<html>
+
+
+</html>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fantamantra AI - Il tuo staff tecnico durante l'asta.">
+  <title>Fantamantra AI | Staff tecnico</title>
+  <link rel="stylesheet" href="Style/style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Fantamantra AI home">
+        <span class="brand-mark">⚽</span>
+        <span>
+          <strong>Fantamantra</strong>
+          <small>AI STAFF ROOM</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" aria-label="Navigazione principale">
+        <a class="nav-link active" href="#staff">Lo Staff</a>
+        <a class="nav-link" href="#asta">Asta</a>
+        <a class="nav-link" href="#matchday">Matchday</a>
+      </nav>
+
+      <button class="icon-button" id="theme-toggle" type="button" aria-label="Cambia tema">☼</button>
+    </header>
+
+    <main id="top">
+      <section class="hero" id="staff">
+        <div class="hero-copy">
+          <p class="eyebrow">IL TUO STAFF TECNICO</p>
+          <h1>Decisioni migliori.<br><span>Ogni giornata.</span></h1>
+          <p class="hero-text">
+            Cinque prospettive, un solo obiettivo: aiutarti a leggere l'asta
+            e scegliere con più lucidità.
+          </p>
+          <a class="primary-button" href="#profili">Conosci lo Staff <span>→</span></a>
+        </div>
+
+        <div class="hero-orbit" aria-label="Rappresentazione dello Staff">
+          <div class="orbit-ring ring-one"></div>
+          <div class="orbit-ring ring-two"></div>
+          <div class="orbit-core"><span>FM</span><small>AI</small></div>
+          <span class="orbit-label label-one">DATI</span>
+          <span class="orbit-label label-two">STRATEGIA</span>
+          <span class="orbit-label label-three">DECISIONE</span>
+        </div>
+      </section>
+
+      <section class="section-block" id="profili">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LE COMPETENZE</p>
+            <h2>Una squadra di teste pensanti.</h2>
+          </div>
+          <p class="section-description">Seleziona un profilo per scoprire come può aiutarti.</p>
+        </div>
+
+        <div class="staff-grid">
+          <article class="staff-card featured" data-role="coach">
+            <div class="card-topline"><span class="role-number">01</span><span class="status active-status">ATTIVO</span></div>
+            <div class="avatar avatar-coach">HC</div>
+            <h3>Head Coach</h3>
+            <p>Coordina i pareri e trasforma i dati in una decisione pratica.</p>
+            <button class="card-link profile-button" type="button" data-profile="coach">Vedi profilo <span>↗</span></button>
+          </article>
+
+          <article class="staff-card" data-role="sport-director">
+            <div class="card-topline"><span class="role-number">02</span><span class="status active-status">ATTIVO</span></div>
+            <div class="avatar avatar-director">DS</div>
+            <h3>Direttore Sportivo</h3>
+            <p>Valuta prezzo, budget e costruzione della rosa.</p>
+            <button class="card-link profile-button" type="button" data-profile="sport-director">Vedi profilo <span>↗</span></button>
+          </article>
+
+          <article class="staff-card" data-role="budget">
+            <div class="card-topline"><span class="role-number">03</span><span class="status active-status">ATTIVO</span></div>
+            <div class="avatar avatar-budget">€</div>
+            <h3>Responsabile Budget</h3>
+            <p>Protegge i tuoi crediti e stabilisce il tetto dell'offerta.</p>
+            <button class="card-link profile-button" type="button" data-profile="budget">Vedi profilo <span>↗</span></button>
+          </article>
+
+          <article class="staff-card" data-role="mantra">
+            <div class="card-topline"><span class="role-number">04</span><span class="status partial-status">PARZIALE</span></div>
+            <div class="avatar avatar-mantra">M</div>
+            <h3>Analista Mantra</h3>
+            <p>Legge ruoli e coperture per dare equilibrio alla rosa.</p>
+            <button class="card-link profile-button" type="button" data-profile="mantra">Vedi profilo <span>↗</span></button>
+          </article>
+
+          <article class="staff-card" data-role="scout">
+            <div class="card-topline"><span class="role-number">05</span><span class="status partial-status">PARZIALE</span></div>
+            <div class="avatar avatar-scout">SC</div>
+            <h3>Scout</h3>
+            <p>Completa il quadro con le informazioni disponibili sul giocatore.</p>
+            <button class="card-link profile-button" type="button" data-profile="scout">Vedi profilo <span>↗</span></button>
+          </article>
+        </div>
+      </section>
+
+      <section class="quote-panel" id="asta">
+        <span class="quote-mark">“</span>
+        <blockquote>Non decidiamo al posto tuo.<br><span>Ti aiutiamo a decidere meglio.</span></blockquote>
+        <p>— Il principio dello Staff Fantamantra AI</p>
+      </section>
+
+      <section class="section-block matchday-section" id="matchday">
+        <p class="eyebrow">PROSSIMAMENTE</p>
+        <h2>Lo Staff cresce insieme ai tuoi dati.</h2>
+        <p class="section-description">Il Matchday entrerà in gioco quando la rosa e le informazioni saranno pronte.</p>
+      </section>
+    </main>
+
+    <footer class="footer"><span>FANTAMANTRA AI</span><span>Staff tecnico · 2026</span></footer>
+  </div>
+
+  <dialog class="profile-dialog" id="profile-dialog">
+    <button class="dialog-close" id="dialog-close" type="button" aria-label="Chiudi">×</button>
+    <p class="eyebrow" id="dialog-status">PROFILO</p>
+    <h2 id="dialog-title">Head Coach</h2>
+    <p id="dialog-description"></p>
+    <div class="dialog-note"><strong>Limite attuale</strong><span id="dialog-limit"></span></div>
+  </dialog>
+</body>
+</html>
