@@ -92,6 +92,9 @@ Per eseguire i test:
 python -m pytest
 ```
 
+Il test del contesto AI verifica che budget, prezzo, rosa e limite massimo
+vengano trasferiti correttamente allo Staff senza effettuare chiamate esterne.
+
 ## Stato del progetto
 
 La parte relativa all'asta e al consulto AI è la base attiva del progetto.
