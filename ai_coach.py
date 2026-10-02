@@ -4,6 +4,50 @@ from config import OPENAI_API_KEY
 from staff.roles import costruisci_contesto_staff
 
 
+def costruisci_contesto_asta(
+    *,
+    budget_iniziale,
+    spesa_totale,
+    crediti,
+    percentuale,
+    portieri,
+    difensori,
+    centrocampisti,
+    trequartisti,
+    attaccanti,
+    giocatore,
+    prezzo_attuale,
+    massima,
+):
+    """Costruisce il contesto comune usato dalle pagine dell'asta."""
+    return f"""
+Sei il mio AI Coach durante un'asta di Fantacalcio Mantra.
+
+DATI DELLA MIA SQUADRA
+Budget iniziale: {budget_iniziale} crediti
+Crediti già spesi: {spesa_totale}
+Crediti rimasti: {crediti}
+Percentuale budget spesa: {percentuale:.1f}%
+
+COMPOSIZIONE DELLA ROSA
+Portieri: {portieri}
+Difensori: {difensori}
+Centrocampisti: {centrocampisti}
+Trequartisti: {trequartisti}
+Attaccanti: {attaccanti}
+
+GIOCATORE ATTUALMENTE IN ASTA
+Nome: {giocatore}
+Prezzo attuale: {prezzo_attuale} crediti
+Offerta massima teorica: {massima}
+
+Analizza la situazione e dammi un consiglio pratico su come comportarmi.
+Considera prezzo, crediti rimasti, composizione della rosa, necessità del
+reparto e rischio di spendere troppo presto.
+Rispondi in modo sintetico e diretto.
+"""
+
+
 def crea_coach():
     if not OPENAI_API_KEY:
         raise ValueError("OPENAI_API_KEY non configurata.")

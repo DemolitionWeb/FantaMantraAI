@@ -6,16 +6,10 @@ from auction_engine import (
     offerta_massima,
 )
 
-from ai_coach import crea_coach, chiedi_consiglio
+from ai_coach import crea_coach, chiedi_consiglio, costruisci_contesto_asta
 from staff.roles import RUOLI_STAFF
 
 from database import crea_rosa_vuota, aggiungi_giocatore, conta_ruoli
-
-st.set_page_config(
-    page_title="Fantamantra AI",
-    page_icon="⚽",
-    layout="wide",
-)
 
 if "rosa" not in st.session_state:
     st.session_state.rosa = crea_rosa_vuota()
@@ -48,6 +42,7 @@ budget_iniziale = st.sidebar.number_input(
     min_value=1,
     value=500,
     step=1,
+    key="budget_iniziale",
 )
 
 spesa_totale = int(st.session_state.rosa["costo"].sum())
@@ -61,6 +56,7 @@ portieri = st.sidebar.number_input(
     min_value=0,
     value=0,
     step=1,
+    key="portieri",
 )
 
 difensori = st.sidebar.number_input(
@@ -68,6 +64,7 @@ difensori = st.sidebar.number_input(
     min_value=0,
     value=0,
     step=1,
+    key="difensori",
 )
 
 centrocampisti = st.sidebar.number_input(
@@ -75,6 +72,7 @@ centrocampisti = st.sidebar.number_input(
     min_value=0,
     value=0,
     step=1,
+    key="centrocampisti",
 )
 
 trequartisti = st.sidebar.number_input(
@@ -82,6 +80,7 @@ trequartisti = st.sidebar.number_input(
     min_value=0,
     value=0,
     step=1,
+    key="trequartisti",
 )
 
 attaccanti = st.sidebar.number_input(
@@ -89,6 +88,7 @@ attaccanti = st.sidebar.number_input(
     min_value=0,
     value=0,
     step=1,
+    key="attaccanti",
 )
 
 
@@ -158,6 +158,7 @@ with col1:
     giocatore = st.text_input(
         "Nome giocatore",
         placeholder="Es. Lautaro Martinez",
+        key="giocatore_in_asta",
     )
 
 with col2:
@@ -166,6 +167,7 @@ with col2:
         min_value=0,
         value=0,
         step=1,
+        key="prezzo_attuale",
     )
 
 
@@ -184,39 +186,20 @@ if st.button("Chiedi consiglio", type="primary"):
         st.warning("Inserisci prima il nome del giocatore.")
 
     else:
-        contesto = f"""
-Sei il mio AI Coach durante un'asta di Fantacalcio Mantra.
-
-DATI DELLA MIA SQUADRA
-Budget iniziale: {budget_iniziale} crediti
-Crediti già spesi: {spesa_totale}
-Crediti rimasti: {crediti}
-Percentuale budget spesa: {percentuale:.1f}%
-
-COMPOSIZIONE DELLA ROSA
-Portieri: {portieri}
-Difensori: {difensori}
-Centrocampisti: {centrocampisti}
-Trequartisti: {trequartisti}
-Attaccanti: {attaccanti}
-
-GIOCATORE ATTUALMENTE IN ASTA
-Nome: {giocatore}
-Prezzo attuale: {prezzo_attuale} crediti
-Offerta massima teorica: {massima}
-
-Analizza la situazione e dammi un consiglio pratico
-su come comportarmi con questo giocatore.
-
-Considera:
-1. il prezzo attuale;
-2. i crediti rimasti;
-3. la composizione della mia rosa;
-4. la necessità del reparto;
-5. il rischio di spendere troppo presto.
-
-Rispondi in modo sintetico e diretto.
-"""
+        contesto = costruisci_contesto_asta(
+            budget_iniziale=budget_iniziale,
+            spesa_totale=spesa_totale,
+            crediti=crediti,
+            percentuale=percentuale,
+            portieri=portieri,
+            difensori=difensori,
+            centrocampisti=centrocampisti,
+            trequartisti=trequartisti,
+            attaccanti=attaccanti,
+            giocatore=giocatore,
+            prezzo_attuale=prezzo_attuale,
+            massima=massima,
+        )
 
         try:
             coach = crea_coach()
@@ -275,19 +258,19 @@ with st.form("aggiungi_giocatore_form"):
 
         else:
 
-          st.session_state.rosa = aggiungi_giocatore(
-    st.session_state.rosa,
-    nuovo_giocatore,
-    nuova_squadra,
-    nuovi_ruoli,
-    nuovo_costo,
-)
+            st.session_state.rosa = aggiungi_giocatore(
+                st.session_state.rosa,
+                nuovo_giocatore,
+                nuova_squadra,
+                nuovi_ruoli,
+                nuovo_costo,
+            )
 
-st.success(
-    f"{nuovo_giocatore} aggiunto alla rosa!"
-)
+            st.success(
+                f"{nuovo_giocatore} aggiunto alla rosa!"
+            )
 
-st.rerun()
+            st.rerun()
 
 
 if not st.session_state.rosa.empty:

@@ -1,0 +1,120 @@
+from pathlib import Path
+from html import escape
+
+import streamlit as st
+import streamlit.components.v1 as components
+
+from ai_coach import costruisci_contesto_asta, crea_coach, chiedi_consiglio
+from auction_engine import crediti_rimanenti, offerta_massima, percentuale_budget_speso
+from database import crea_rosa_vuota
+
+st.set_page_config(
+    page_title="Staff visuale | Fantamantra AI",
+    page_icon="⚽",
+    layout="wide",
+)
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+HTML_PATH = BASE_DIR / "index.html"
+CSS_PATH = BASE_DIR / "Style" / "style.css"
+JS_PATH = BASE_DIR / "script.js"
+
+
+def carica_prototipo() -> str:
+    """Prepara il prototipo standalone per l'inclusione in Streamlit."""
+    if "rosa" not in st.session_state:
+        st.session_state.rosa = crea_rosa_vuota()
+
+    budget = st.session_state.get("budget_iniziale", 500)
+    spesa = int(st.session_state.rosa["costo"].sum())
+    crediti = crediti_rimanenti(budget, spesa)
+    massima = offerta_massima(budget, spesa)
+    numero_giocatori = len(st.session_state.rosa)
+    giocatore = escape(
+        st.session_state.get("giocatore_in_asta", "")
+        or "Nessun giocatore selezionato"
+    )
+    prezzo = st.session_state.get("prezzo_attuale", 0)
+    statistiche = f"""
+      <section class="live-stats" aria-label="Riepilogo della squadra">
+        <div class="live-stat"><strong>{budget}</strong><small>Budget iniziale</small></div>
+        <div class="live-stat"><strong>{spesa}</strong><small>Crediti spesi</small></div>
+        <div class="live-stat"><strong>{crediti}</strong><small>Crediti rimasti</small></div>
+        <div class="live-stat"><strong>{numero_giocatori}</strong><small>Giocatori in rosa</small></div>
+      </section>
+    """
+    asta = f"""
+      <section class="live-auction" aria-label="Giocatore attualmente in asta">
+        <div><small>Giocatore in asta</small><strong>{giocatore}</strong></div>
+        <div><small>Prezzo attuale</small><span class="auction-price">{prezzo}</span></div>
+      </section>
+    """
+
+    html = HTML_PATH.read_text(encoding="utf-8")
+    css = CSS_PATH.read_text(encoding="utf-8")
+    javascript = JS_PATH.read_text(encoding="utf-8")
+
+    html = html.replace(
+        '<link rel="stylesheet" href="Style/style.css">',
+        f"<style>{css}</style>",
+    )
+    html = html.replace(
+        '<script src="script.js" defer></script>',
+        f"<script>{javascript}</script>",
+    )
+    html = html.replace("<!-- STREAMLIT_LIVE_STATS -->", statistiche)
+    html = html.replace("<!-- STREAMLIT_LIVE_AUCTION -->", asta)
+    return html
+
+
+st.caption("Prototipo visuale collegato all'applicazione Fantamantra AI")
+
+st.subheader("Dati asta")
+colonna_giocatore, colonna_prezzo = st.columns(2)
+with colonna_giocatore:
+    st.text_input(
+        "Giocatore in asta",
+        placeholder="Es. Lautaro Martinez",
+        key="giocatore_in_asta",
+    )
+with colonna_prezzo:
+    st.number_input(
+        "Prezzo attuale",
+        min_value=0,
+        step=1,
+        key="prezzo_attuale",
+    )
+
+if st.button("Chiedi consiglio allo Staff", type="primary"):
+    giocatore = st.session_state.get("giocatore_in_asta", "").strip()
+    if not giocatore:
+        st.warning("Inserisci prima il nome del giocatore.")
+    else:
+        rosa = st.session_state.get("rosa", crea_rosa_vuota())
+        spesa = int(rosa["costo"].sum())
+        budget = st.session_state.get("budget_iniziale", 500)
+        crediti = crediti_rimanenti(budget, spesa)
+        massima = offerta_massima(budget, spesa)
+        contesto = costruisci_contesto_asta(
+            budget_iniziale=budget,
+            spesa_totale=spesa,
+            crediti=crediti,
+            percentuale=percentuale_budget_speso(budget, spesa),
+            portieri=st.session_state.get("portieri", 0),
+            difensori=st.session_state.get("difensori", 0),
+            centrocampisti=st.session_state.get("centrocampisti", 0),
+            trequartisti=st.session_state.get("trequartisti", 0),
+            attaccanti=st.session_state.get("attaccanti", 0),
+            giocatore=giocatore,
+            prezzo_attuale=st.session_state.get("prezzo_attuale", 0),
+            massima=massima,
+        )
+        try:
+            consiglio = chiedi_consiglio(crea_coach(), contesto)
+            st.success("Consiglio dell'AI Coach")
+            st.write(consiglio)
+        except Exception as errore:
+            st.error(f"Errore AI Coach: {errore}")
+
+components.html(carica_prototipo(), height=2100, scrolling=True)
