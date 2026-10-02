@@ -1,6 +1,51 @@
 from db.database import get_connection
 
 
+def prossima_partita(squadra):
+    """Restituisce la prossima partita programmata della squadra."""
+    if not squadra:
+        return None
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            id,
+            squadra_casa,
+            squadra_trasferta,
+            kickoff_utc,
+            stato
+        FROM partite
+        WHERE stato = 'scheduled'
+          AND (
+              squadra_casa = ?
+              OR squadra_trasferta = ?
+          )
+        ORDER BY kickoff_utc ASC
+        LIMIT 1
+        """,
+        (squadra, squadra),
+    )
+
+    partita = cursor.fetchone()
+    conn.close()
+
+    if not partita:
+        return None
+
+    partita_id, casa, trasferta, kickoff, stato = partita
+
+    return {
+        "partita_id": partita_id,
+        "casa": casa,
+        "trasferta": trasferta,
+        "kickoff": kickoff,
+        "stato": stato,
+    }
+
+
 def analizza_disponibilita(giocatore_id):
     conn = get_connection()
     cursor = conn.cursor()
