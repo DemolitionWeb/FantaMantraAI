@@ -9,10 +9,15 @@ from auction_engine import (
 from ai_coach import crea_coach, chiedi_consiglio, costruisci_contesto_asta
 from staff.roles import RUOLI_STAFF
 
-from database import crea_rosa_vuota, aggiungi_giocatore, conta_ruoli
+from database import (
+    aggiungi_giocatore,
+    carica_rosa,
+    conta_ruoli,
+    salva_rosa,
+)
 
 if "rosa" not in st.session_state:
-    st.session_state.rosa = crea_rosa_vuota()
+    st.session_state.rosa = carica_rosa()
 
 
 st.set_page_config(
@@ -271,6 +276,7 @@ with st.form("aggiungi_giocatore_form"):
                 nuovi_ruoli,
                 nuovo_costo,
             )
+            salva_rosa(st.session_state.rosa)
 
             st.success(
                 f"{nuovo_giocatore} aggiunto alla rosa!"

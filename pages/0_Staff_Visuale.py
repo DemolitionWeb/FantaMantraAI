@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 
 from ai_coach import costruisci_contesto_asta, crea_coach, chiedi_consiglio
 from auction_engine import crediti_rimanenti, offerta_massima, percentuale_budget_speso
-from database import crea_rosa_vuota
+from database import carica_rosa
 from staff.roles import CATALOGO_STAFF
 
 st.set_page_config(
@@ -34,7 +34,7 @@ ID_PROFILI = {
 def carica_prototipo() -> str:
     """Prepara il prototipo standalone per l'inclusione in Streamlit."""
     if "rosa" not in st.session_state:
-        st.session_state.rosa = crea_rosa_vuota()
+        st.session_state.rosa = carica_rosa()
 
     budget = st.session_state.get("budget_iniziale", 500)
     spesa = int(st.session_state.rosa["costo"].sum())
@@ -123,7 +123,7 @@ if st.button("Chiedi consiglio allo Staff", type="primary"):
     if not giocatore:
         st.warning("Inserisci prima il nome del giocatore.")
     else:
-        rosa = st.session_state.get("rosa", crea_rosa_vuota())
+        rosa = st.session_state.get("rosa", carica_rosa())
         spesa = int(rosa["costo"].sum())
         budget = st.session_state.get("budget_iniziale", 500)
         crediti = crediti_rimanenti(budget, spesa)

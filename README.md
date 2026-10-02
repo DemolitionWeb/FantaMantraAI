@@ -109,7 +109,8 @@ sufficientemente affidabile.
 
 La pagina visuale è già collegata ai dati di budget, rosa, giocatore in asta e
 AI Coach. Le interazioni JavaScript gestiscono navigazione, profili e tema;
-Streamlit gestisce lo stato e le chiamate al backend.
+Streamlit gestisce lo stato e le chiamate al backend. La rosa viene salvata
+localmente nella tabella SQLite `rosa_asta` dopo ogni acquisto.
 
 ## Principi del progetto
 

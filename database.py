@@ -7,6 +7,65 @@ def get_connection():
     return sqlite3.connect(Path("database.db"))
 
 
+def inizializza_rosa():
+    """Crea la tabella locale usata per salvare la rosa d'asta."""
+    conn = get_connection()
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS rosa_asta (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            giocatore TEXT NOT NULL,
+            squadra TEXT NOT NULL,
+            ruoli TEXT NOT NULL,
+            costo REAL NOT NULL
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
+
+
+def carica_rosa():
+    """Carica la rosa salvata oppure restituisce una rosa vuota."""
+    inizializza_rosa()
+    conn = get_connection()
+
+    rosa = pd.read_sql_query(
+        """
+        SELECT giocatore, squadra, ruoli, costo
+        FROM rosa_asta
+        ORDER BY id
+        """,
+        conn,
+    )
+    conn.close()
+
+    if rosa.empty:
+        return crea_rosa_vuota()
+
+    return rosa
+
+
+def salva_rosa(rosa):
+    """Sostituisce il contenuto persistito con la rosa corrente."""
+    inizializza_rosa()
+    conn = get_connection()
+
+    conn.execute("DELETE FROM rosa_asta")
+    conn.executemany(
+        """
+        INSERT INTO rosa_asta (giocatore, squadra, ruoli, costo)
+        VALUES (?, ?, ?, ?)
+        """,
+        rosa[["giocatore", "squadra", "ruoli", "costo"]].itertuples(
+            index=False,
+            name=None,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+
 def crea_rosa_vuota():
     return pd.DataFrame(
         columns=[
