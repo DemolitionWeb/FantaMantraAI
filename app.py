@@ -7,6 +7,7 @@ from auction_engine import (
 )
 
 from ai_coach import crea_coach, chiedi_consiglio, costruisci_contesto_asta
+from player_identity import trova_giocatore_per_nome
 from staff.roles import RUOLI_STAFF
 
 from database import (
@@ -176,6 +177,14 @@ with col2:
         key="prezzo_attuale",
     )
 
+profilo_giocatore = trova_giocatore_per_nome(giocatore) if giocatore else None
+if profilo_giocatore:
+    st.info(
+        f"Profilo trovato: {profilo_giocatore['nome']} · "
+        f"{profilo_giocatore['squadra']} · "
+        f"Ruoli: {profilo_giocatore['ruoli_mantra'] or 'non disponibili'}"
+    )
+
 
 st.divider()
 
@@ -205,6 +214,7 @@ if st.button("Chiedi consiglio", type="primary"):
             giocatore=giocatore,
             prezzo_attuale=prezzo_attuale,
             massima=massima,
+            profilo_giocatore=profilo_giocatore,
         )
 
         if prezzo_attuale > massima:

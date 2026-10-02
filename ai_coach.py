@@ -18,6 +18,7 @@ def costruisci_contesto_asta(
     giocatore,
     prezzo_attuale,
     massima,
+    profilo_giocatore=None,
 ):
     """Costruisce il contesto comune usato dalle pagine dell'asta."""
     return f"""
@@ -40,6 +41,9 @@ GIOCATORE ATTUALMENTE IN ASTA
 Nome: {giocatore}
 Prezzo attuale: {prezzo_attuale} crediti
 Offerta massima teorica: {massima}
+
+PROFILO VERIFICATO
+{profilo_giocatore or "Nessun profilo verificato trovato per nome."}
 
 Analizza la situazione e dammi un consiglio pratico su come comportarmi.
 Considera prezzo, crediti rimasti, composizione della rosa, necessità del

@@ -8,6 +8,7 @@ import streamlit.components.v1 as components
 from ai_coach import costruisci_contesto_asta, crea_coach, chiedi_consiglio
 from auction_engine import crediti_rimanenti, offerta_massima, percentuale_budget_speso
 from database import carica_rosa
+from player_identity import trova_giocatore_per_nome
 from staff.roles import CATALOGO_STAFF
 
 st.set_page_config(
@@ -118,6 +119,16 @@ with colonna_prezzo:
         key="prezzo_attuale",
     )
 
+profilo_giocatore = trova_giocatore_per_nome(
+    st.session_state.get("giocatore_in_asta", "")
+)
+if profilo_giocatore:
+    st.info(
+        f"Profilo trovato: {profilo_giocatore['nome']} · "
+        f"{profilo_giocatore['squadra']} · "
+        f"Ruoli: {profilo_giocatore['ruoli_mantra'] or 'non disponibili'}"
+    )
+
 if st.button("Chiedi consiglio allo Staff", type="primary"):
     giocatore = st.session_state.get("giocatore_in_asta", "").strip()
     if not giocatore:
@@ -141,6 +152,7 @@ if st.button("Chiedi consiglio allo Staff", type="primary"):
             giocatore=giocatore,
             prezzo_attuale=st.session_state.get("prezzo_attuale", 0),
             massima=massima,
+            profilo_giocatore=profilo_giocatore,
         )
         prezzo = st.session_state.get("prezzo_attuale", 0)
         if prezzo > massima:
