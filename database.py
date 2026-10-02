@@ -107,6 +107,24 @@ def aggiungi_giocatore(rosa, giocatore, squadra, ruoli, costo):
     )
 
 
+def giocatore_esistente(rosa, giocatore, squadra):
+    """Controlla se un giocatore è già presente nella stessa squadra."""
+    if rosa.empty:
+        return False
+
+    nome = str(giocatore).strip().casefold()
+    club = str(squadra).strip().casefold()
+
+    stesso_nome = (
+        rosa["giocatore"].astype(str).str.strip().str.casefold() == nome
+    )
+    stessa_squadra = (
+        rosa["squadra"].astype(str).str.strip().str.casefold() == club
+    )
+
+    return bool((stesso_nome & stessa_squadra).any())
+
+
 def conta_ruoli(rosa):
     conteggio = {
         "POR": 0,

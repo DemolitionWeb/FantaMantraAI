@@ -13,6 +13,7 @@ from database import (
     aggiungi_giocatore,
     carica_rosa,
     conta_ruoli,
+    giocatore_esistente,
     salva_rosa,
 )
 
@@ -266,6 +267,13 @@ with st.form("aggiungi_giocatore_form"):
 
         elif not nuovi_ruoli:
             st.warning("Inserisci almeno un ruolo Mantra.")
+
+        elif giocatore_esistente(
+            st.session_state.rosa,
+            nuovo_giocatore,
+            nuova_squadra,
+        ):
+            st.warning("Questo giocatore è già presente nella rosa.")
 
         else:
 
