@@ -95,6 +95,10 @@ python -m pytest
 Il test del contesto AI verifica che budget, prezzo, rosa e limite massimo
 vengano trasferiti correttamente allo Staff senza effettuare chiamate esterne.
 
+I file diagnostici che interrogano servizi esterni non vengono raccolti
+automaticamente da pytest; possono essere eseguiti manualmente quando le API
+e le relative chiavi sono disponibili.
+
 ## Stato del progetto
 
 La parte relativa all'asta e al consulto AI è la base attiva del progetto.
