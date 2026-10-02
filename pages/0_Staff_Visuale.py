@@ -142,11 +142,18 @@ if st.button("Chiedi consiglio allo Staff", type="primary"):
             prezzo_attuale=st.session_state.get("prezzo_attuale", 0),
             massima=massima,
         )
-        try:
-            consiglio = chiedi_consiglio(crea_coach(), contesto)
-            st.session_state.ultimo_consiglio = consiglio
-            st.success("Consiglio dell'AI Coach")
-        except Exception as errore:
-            st.error(f"Errore AI Coach: {errore}")
+        prezzo = st.session_state.get("prezzo_attuale", 0)
+        if prezzo > massima:
+            st.error(
+                f"Il prezzo attuale ({prezzo}) supera "
+                f"l'offerta massima consentita ({massima})."
+            )
+        else:
+            try:
+                consiglio = chiedi_consiglio(crea_coach(), contesto)
+                st.session_state.ultimo_consiglio = consiglio
+                st.success("Consiglio dell'AI Coach")
+            except Exception as errore:
+                st.error(f"Errore AI Coach: {errore}")
 
 components.html(carica_prototipo(), height=2100, scrolling=True)

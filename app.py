@@ -201,15 +201,21 @@ if st.button("Chiedi consiglio", type="primary"):
             massima=massima,
         )
 
-        try:
-            coach = crea_coach()
-            consiglio = chiedi_consiglio(coach, contesto)
+        if prezzo_attuale > massima:
+            st.error(
+                f"Il prezzo attuale ({prezzo_attuale}) supera "
+                f"l'offerta massima consentita ({massima})."
+            )
+        else:
+            try:
+                coach = crea_coach()
+                consiglio = chiedi_consiglio(coach, contesto)
 
-            st.success("Consiglio dell'AI Coach")
-            st.write(consiglio)
+                st.success("Consiglio dell'AI Coach")
+                st.write(consiglio)
 
-        except Exception as errore:
-            st.error(f"Errore AI Coach: {errore}")
+            except Exception as errore:
+                st.error(f"Errore AI Coach: {errore}")
 
             st.divider()
 
