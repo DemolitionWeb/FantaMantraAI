@@ -36,6 +36,7 @@ def carica_prototipo() -> str:
         or "Nessun giocatore selezionato"
     )
     prezzo = st.session_state.get("prezzo_attuale", 0)
+    ultimo_consiglio = st.session_state.get("ultimo_consiglio", "")
     statistiche = f"""
       <section class="live-stats" aria-label="Riepilogo della squadra">
         <div class="live-stat"><strong>{budget}</strong><small>Budget iniziale</small></div>
@@ -50,6 +51,14 @@ def carica_prototipo() -> str:
         <div><small>Prezzo attuale</small><span class="auction-price">{prezzo}</span></div>
       </section>
     """
+    consiglio = ""
+    if ultimo_consiglio:
+        consiglio = f"""
+          <section class="live-advice" aria-label="Ultimo consiglio dell'AI Coach">
+            <p class="eyebrow">ULTIMO CONSIGLIO DELLO STAFF</p>
+            <div class="live-advice-content">{escape(ultimo_consiglio)}</div>
+          </section>
+        """
 
     html = HTML_PATH.read_text(encoding="utf-8")
     css = CSS_PATH.read_text(encoding="utf-8")
@@ -65,6 +74,7 @@ def carica_prototipo() -> str:
     )
     html = html.replace("<!-- STREAMLIT_LIVE_STATS -->", statistiche)
     html = html.replace("<!-- STREAMLIT_LIVE_AUCTION -->", asta)
+    html = html.replace("<!-- STREAMLIT_LIVE_ADVICE -->", consiglio)
     return html
 
 
@@ -112,8 +122,8 @@ if st.button("Chiedi consiglio allo Staff", type="primary"):
         )
         try:
             consiglio = chiedi_consiglio(crea_coach(), contesto)
+            st.session_state.ultimo_consiglio = consiglio
             st.success("Consiglio dell'AI Coach")
-            st.write(consiglio)
         except Exception as errore:
             st.error(f"Errore AI Coach: {errore}")
 

@@ -45,6 +45,44 @@ closeDialog.addEventListener('click', () => dialog.close());
 dialog.addEventListener('click', (event) => {
   if (event.target === dialog) dialog.close();
 });
+dialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  dialog.close();
+});
+
+const navLinks = [...document.querySelectorAll('.nav-link')];
+const navSections = navLinks
+  .map((link) => document.querySelector(link.getAttribute('href')))
+  .filter(Boolean);
+
+function aggiornaNavigazione(sezioneAttiva) {
+  navLinks.forEach((link) => {
+    const attiva = link.getAttribute('href') === `#${sezioneAttiva}`;
+    link.classList.toggle('active', attiva);
+  });
+}
+
+navLinks.forEach((link) => {
+  link.addEventListener('click', () => {
+    const id = link.getAttribute('href').slice(1);
+    aggiornaNavigazione(id);
+  });
+});
+
+if ('IntersectionObserver' in window) {
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      const visibile = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+      if (visibile) aggiornaNavigazione(visibile.target.id);
+    },
+    { rootMargin: '-25% 0px -60% 0px', threshold: [0, .25, .6] }
+  );
+
+  navSections.forEach((section) => sectionObserver.observe(section));
+}
 
 document.querySelector('#theme-toggle').addEventListener('click', () => {
   document.body.classList.toggle('light-theme');
