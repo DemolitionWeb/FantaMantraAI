@@ -1,4 +1,4 @@
-const profiles = {
+const fallbackProfiles = {
   coach: {
     title: 'Head Coach',
     description: 'Coordina i pareri dello Staff e restituisce una scelta chiara: comprare, rilanciare entro il tetto oppure passare.',
@@ -26,6 +26,8 @@ const profiles = {
   }
 };
 
+const profiles = window.staffProfiles || fallbackProfiles;
+
 const dialog = document.querySelector('#profile-dialog');
 const closeDialog = document.querySelector('#dialog-close');
 
@@ -35,6 +37,7 @@ document.querySelectorAll('.profile-button').forEach((button) => {
     if (!profile) return;
 
     document.querySelector('#dialog-title').textContent = profile.title;
+    document.querySelector('#dialog-status').textContent = profile.status || 'PROFILO';
     document.querySelector('#dialog-description').textContent = profile.description;
     document.querySelector('#dialog-limit').textContent = profile.limit;
     dialog.showModal();

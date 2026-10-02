@@ -1,5 +1,6 @@
 from pathlib import Path
 from html import escape
+import json
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -7,6 +8,7 @@ import streamlit.components.v1 as components
 from ai_coach import costruisci_contesto_asta, crea_coach, chiedi_consiglio
 from auction_engine import crediti_rimanenti, offerta_massima, percentuale_budget_speso
 from database import crea_rosa_vuota
+from staff.roles import CATALOGO_STAFF
 
 st.set_page_config(
     page_title="Staff visuale | Fantamantra AI",
@@ -19,6 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 HTML_PATH = BASE_DIR / "index.html"
 CSS_PATH = BASE_DIR / "Style" / "style.css"
 JS_PATH = BASE_DIR / "script.js"
+
+ID_PROFILI = {
+    "Head Coach": "coach",
+    "Direttore sportivo": "sport-director",
+    "Responsabile budget": "budget",
+    "Analista Mantra": "mantra",
+    "Scout": "scout",
+}
 
 
 def carica_prototipo() -> str:
@@ -63,6 +73,16 @@ def carica_prototipo() -> str:
     html = HTML_PATH.read_text(encoding="utf-8")
     css = CSS_PATH.read_text(encoding="utf-8")
     javascript = JS_PATH.read_text(encoding="utf-8")
+    profili_staff = {
+        ID_PROFILI[membro["nome"]]: {
+            "title": membro["nome"],
+            "description": membro["ruolo"],
+            "limit": membro["limite"],
+            "status": membro["stato"],
+        }
+        for membro in CATALOGO_STAFF
+        if membro["nome"] in ID_PROFILI
+    }
 
     html = html.replace(
         '<link rel="stylesheet" href="Style/style.css">',
@@ -70,7 +90,9 @@ def carica_prototipo() -> str:
     )
     html = html.replace(
         '<script src="script.js" defer></script>',
-        f"<script>{javascript}</script>",
+        "<script>window.staffProfiles = "
+        + json.dumps(profili_staff, ensure_ascii=False)
+        + f";</script><script>{javascript}</script>",
     )
     html = html.replace("<!-- STREAMLIT_LIVE_STATS -->", statistiche)
     html = html.replace("<!-- STREAMLIT_LIVE_AUCTION -->", asta)
