@@ -48,6 +48,7 @@ def carica_prototipo() -> str:
     )
     prezzo = st.session_state.get("prezzo_attuale", 0)
     ultimo_consiglio = st.session_state.get("ultimo_consiglio", "")
+    profilo = st.session_state.get("profilo_giocatore")
     statistiche = f"""
       <section class="live-stats" aria-label="Riepilogo della squadra">
         <div class="live-stat"><strong>{budget}</strong><small>Budget iniziale</small></div>
@@ -62,6 +63,21 @@ def carica_prototipo() -> str:
         <div><small>Prezzo attuale</small><span class="auction-price">{prezzo}</span></div>
       </section>
     """
+    profilo_html = ""
+    if profilo:
+        iniziali = "".join(
+            parte[0] for parte in profilo["nome"].split()[:2] if parte
+        ).upper()
+        profilo_html = f"""
+          <section class="live-player-profile" aria-label="Profilo giocatore verificato">
+            <div class="profile-badge">{escape(iniziali)}</div>
+            <div>
+              <small>Profilo verificato</small>
+              <strong>{escape(profilo['nome'])}</strong>
+              <small>{escape(profilo['squadra'] or 'Squadra non disponibile')} · Ruoli: {escape(profilo['ruoli_mantra'] or 'non disponibili')}</small>
+            </div>
+          </section>
+        """
     consiglio = ""
     if ultimo_consiglio:
         consiglio = f"""
@@ -97,6 +113,7 @@ def carica_prototipo() -> str:
     )
     html = html.replace("<!-- STREAMLIT_LIVE_STATS -->", statistiche)
     html = html.replace("<!-- STREAMLIT_LIVE_AUCTION -->", asta)
+    html = html.replace("<!-- STREAMLIT_PLAYER_PROFILE -->", profilo_html)
     html = html.replace("<!-- STREAMLIT_LIVE_ADVICE -->", consiglio)
     return html
 
@@ -122,12 +139,7 @@ with colonna_prezzo:
 profilo_giocatore = trova_giocatore_per_nome(
     st.session_state.get("giocatore_in_asta", "")
 )
-if profilo_giocatore:
-    st.info(
-        f"Profilo trovato: {profilo_giocatore['nome']} · "
-        f"{profilo_giocatore['squadra']} · "
-        f"Ruoli: {profilo_giocatore['ruoli_mantra'] or 'non disponibili'}"
-    )
+st.session_state.profilo_giocatore = profilo_giocatore
 
 if st.button("Chiedi consiglio allo Staff", type="primary"):
     giocatore = st.session_state.get("giocatore_in_asta", "").strip()
