@@ -72,13 +72,25 @@ Installare le dipendenze:
 pip install -r requirements.txt
 ```
 
+Configurare le variabili locali copiando `.env.example` in `.env` e inserendo
+le chiavi dei servizi utilizzati. Il file `.env` è escluso dalla repository e
+non deve essere condiviso.
+
 Avviare l'applicazione principale:
 
 ```bash
 streamlit run app.py
 ```
 
-Per visualizzare il prototipo HTML, aprire `index.html` in un browser.
+Dal menu dell'app è possibile aprire la pagina **Staff Visuale**, che integra
+il prototipo HTML/CSS/JavaScript dentro Streamlit. Il prototipo può anche
+essere aperto autonomamente aprendo `index.html` in un browser.
+
+Per eseguire i test:
+
+```bash
+python -m pytest
+```
 
 ## Stato del progetto
 
@@ -87,6 +99,10 @@ L'interfaccia HTML/CSS/JavaScript è in fase di costruzione e serve a dare una
 faccia più chiara allo Staff. Le funzionalità Matchday restano in pausa finché
 presenze, disponibilità e dati della rosa non saranno collegati in modo
 sufficientemente affidabile.
+
+La pagina visuale è già collegata ai dati di budget, rosa, giocatore in asta e
+AI Coach. Le interazioni JavaScript gestiscono navigazione, profili e tema;
+Streamlit gestisce lo stato e le chiamate al backend.
 
 ## Principi del progetto
 
