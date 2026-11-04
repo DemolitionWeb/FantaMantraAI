@@ -191,6 +191,30 @@ def crea_database():
     )
 """)
 
+    # Regole della lega (budget, bonus, rimborsi...) come coppie chiave/valore.
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS impostazioni_lega (
+        chiave TEXT PRIMARY KEY,
+        valore TEXT
+    )
+""")
+
+    # Storico di acquisti e svincoli fatti durante l'asta dal vivo.
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS movimenti_lega (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        momento TEXT NOT NULL,
+        tipo TEXT NOT NULL,
+        giocatore_id TEXT NOT NULL,
+        fantasquadra_id INTEGER NOT NULL,
+        costo INTEGER NOT NULL,
+        rimborso INTEGER NOT NULL DEFAULT 0,
+        annullato INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (giocatore_id) REFERENCES giocatori(id),
+        FOREIGN KEY (fantasquadra_id) REFERENCES fantasquadre(id)
+    )
+""")
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS rose_lega (
         giocatore_id TEXT PRIMARY KEY,

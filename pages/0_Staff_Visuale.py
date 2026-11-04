@@ -13,7 +13,8 @@ from database import carica_rosa
 from player_identity import trova_giocatore_per_nome
 from staff.roles import CATALOGO_STAFF
 from db.database import crea_database
-from db.lega import dati_listone, proprietario, riepilogo_squadre, rose_complete, svincolati
+from db.lega import dati_listone, proprietario, rose_complete, svincolati
+from db.mercato import situazione_squadre
 from engine.match_difficult import calcola_match_difficulty
 from stato_app import leggi_valore
 
@@ -166,7 +167,7 @@ def carica_prototipo() -> str:
     html = html.replace("<!-- STREAMLIT_LIVE_AUCTION -->", asta)
     html = html.replace("<!-- STREAMLIT_PLAYER_PROFILE -->", profilo_html)
     html = html.replace("<!-- STREAMLIT_LIVE_ADVICE -->", consiglio)
-    html = _sostituisci_blocco(html, "LEAGUE", sezione_lega(budget))
+    html = _sostituisci_blocco(html, "LEAGUE", sezione_lega())
     html = _sostituisci_blocco(html, "MATCHDAY", sezione_matchday())
     return html
 
@@ -185,17 +186,16 @@ def _sostituisci_blocco(html, nome, contenuto):
     return schema.sub(lambda _: contenuto, html, count=1)
 
 
-def sezione_lega(budget):
+def sezione_lega():
     """Tabella crediti delle squadre e migliori svincolati."""
-    squadre = riepilogo_squadre(budget)
+    squadre = situazione_squadre()
     if not squadre:
         return ""
 
-    dimensione = leggi_valore("dimensione_rosa", 25)
     righe = []
     for squadra in sorted(squadre, key=lambda s: s["residui"], reverse=True):
-        posti = max(dimensione - squadra["giocatori"], 0)
-        massima_squadra = offerta_massima(budget, squadra["spesi"], posti_da_riempire=posti)
+        posti = squadra["posti_liberi"]
+        massima_squadra = squadra["offerta_massima"]
         classe = ' class="is-mine"' if squadra["mia"] else ""
         righe.append(
             f"<tr{classe}><td>{escape(squadra['squadra'])}</td>"

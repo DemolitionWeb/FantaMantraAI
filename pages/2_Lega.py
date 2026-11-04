@@ -1,16 +1,10 @@
 import pandas as pd
 import streamlit as st
 
-from auction_engine import offerta_massima
 from config import RUOLI_MANTRA
 from db.database import crea_database
-from db.lega import (
-    riepilogo_squadre,
-    rose_complete,
-    svincolati,
-    ultimo_aggiornamento_rose,
-)
-from stato_app import leggi_valore
+from db.lega import rose_complete, svincolati, ultimo_aggiornamento_rose
+from db.mercato import leggi_regole, situazione_squadre
 
 st.set_page_config(
     page_title="La lega | Fantamantra AI",
@@ -22,9 +16,8 @@ crea_database()
 
 st.title("🏆 La lega")
 
-budget = leggi_valore("budget_iniziale", 500)
-dimensione_rosa = leggi_valore("dimensione_rosa", 25)
-squadre = riepilogo_squadre(budget)
+regole = leggi_regole()
+squadre = situazione_squadre(regole)
 
 if not squadre:
     st.info(
@@ -35,8 +28,8 @@ if not squadre:
 
 aggiornamento = ultimo_aggiornamento_rose()
 st.caption(
-    f"Budget {budget} crediti · rosa da {dimensione_rosa} giocatori "
-    "(impostabili nella pagina principale)"
+    f"Budget {regole['budget_iniziale']} + bonus {regole['bonus_riparazione']} crediti · "
+    f"massimo {regole['max_giocatori']} giocatori (regole modificabili in Asta live)"
     + (f" · rose aggiornate al {aggiornamento[:10]}" if aggiornamento else "")
 )
 
@@ -62,7 +55,6 @@ with tab_squadre:
 
     righe = []
     for squadra in squadre:
-        posti = max(dimensione_rosa - squadra["giocatori"], 0)
         reparti = conteggi.loc[squadra["squadra"]] if squadra["squadra"] in conteggi.index else {}
         righe.append({
             "Squadra": ("⭐ " if squadra["mia"] else "") + squadra["squadra"],
@@ -72,23 +64,14 @@ with tab_squadre:
             "C": int(reparti.get("C", 0)),
             "A": int(reparti.get("A", 0)),
             "Spesi": squadra["spesi"],
+            "Persi con svincoli": squadra["persi_svincoli"],
             "Residui": squadra["residui"],
-            "Posti liberi": posti,
-            "Offerta massima": offerta_massima(
-                budget, squadra["spesi"], posti_da_riempire=posti
-            ),
+            "Posti liberi": squadra["posti_liberi"],
+            "Offerta massima": squadra["offerta_massima"],
         })
 
     tabella = pd.DataFrame(righe).sort_values("Residui", ascending=False)
     st.dataframe(tabella, hide_index=True, width="stretch")
-
-    oltre = [r["Squadra"] for r in righe if r["Giocatori"] > dimensione_rosa]
-    if oltre:
-        st.warning(
-            f"{len(oltre)} squadre hanno più di {dimensione_rosa} giocatori: "
-            "aggiorna \"Giocatori da acquistare in totale\" nella pagina "
-            "principale, altrimenti posti liberi e offerta massima risultano 0."
-        )
 
     st.caption(
         "Offerta massima: crediti residui meno 1 credito per ogni altro posto "
