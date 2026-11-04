@@ -156,6 +156,52 @@ def crea_database():
     )
 """)
 
+    # Listone Fantacalcio: un giocatore di Serie A per riga, collegato
+    # all'anagrafica giocatori. È un'istantanea: viene sostituito a ogni
+    # importazione.
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS listone (
+        giocatore_id TEXT PRIMARY KEY,
+        fantacalcio_id TEXT UNIQUE NOT NULL,
+        nome TEXT NOT NULL,
+        squadra TEXT NOT NULL,
+        ruolo_classic TEXT,
+        ruoli_mantra TEXT,
+        qi_classic INTEGER,
+        qa_classic INTEGER,
+        qi_mantra INTEGER,
+        qa_mantra INTEGER,
+        fvm_classic INTEGER,
+        fvm_mantra INTEGER,
+        media_voto REAL,
+        fanta_media REAL,
+        presenze INTEGER,
+        eta INTEGER,
+        ultimo_aggiornamento TEXT,
+        FOREIGN KEY (giocatore_id) REFERENCES giocatori(id)
+    )
+""")
+
+    # Squadre della lega e rose di tutti i partecipanti.
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fantasquadre (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT UNIQUE NOT NULL,
+        mia INTEGER NOT NULL DEFAULT 0
+    )
+""")
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS rose_lega (
+        giocatore_id TEXT PRIMARY KEY,
+        fantasquadra_id INTEGER NOT NULL,
+        costo INTEGER,
+        ultimo_aggiornamento TEXT,
+        FOREIGN KEY (giocatore_id) REFERENCES giocatori(id),
+        FOREIGN KEY (fantasquadra_id) REFERENCES fantasquadre(id)
+    )
+""")
+
     conn.commit()
     conn.close()
 
