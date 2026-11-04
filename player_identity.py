@@ -1,5 +1,8 @@
+import sqlite3
+
 from db.presenze import normalizza_nome, normalizza_squadra, trova_giocatore as _trova_giocatore
 from db.database import get_connection
+from db.listone import nomi_compatibili
 
 
 def trova_giocatore_per_nome(nome):
@@ -18,6 +21,23 @@ def trova_giocatore_per_nome(nome):
         """,
         (nome_normalizzato,),
     ).fetchall()
+
+    if not giocatori:
+        # Nome scritto in un altro formato ("Lautaro Martinez" invece di
+        # "Martinez L."): si accetta solo un giocatore del listone
+        # compatibile e senza alternative.
+        try:
+            candidati = conn.execute(
+                """
+                SELECT g.id, g.nome, g.squadra, g.ruoli_mantra
+                FROM listone l JOIN giocatori g ON g.id = l.giocatore_id
+                """,
+                (),
+            ).fetchall()
+        except sqlite3.OperationalError:
+            candidati = []
+        giocatori = [g for g in candidati if nomi_compatibili(nome, g[1])]
+
     conn.close()
 
     if len(giocatori) != 1:

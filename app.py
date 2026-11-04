@@ -18,6 +18,7 @@ from database import (
     salva_rosa,
 )
 from db.database import crea_database
+from db.lega import dati_listone, proprietario
 from stato_app import input_persistente
 
 crea_database()
@@ -163,10 +164,38 @@ with col2:
 
 profilo_giocatore = trova_giocatore_per_nome(giocatore) if giocatore else None
 if profilo_giocatore:
+    # Proprietario e valori del listone entrano anche nel contesto del
+    # Coach, così il consiglio usa dati verificati.
+    profilo_giocatore["proprietario"] = proprietario(profilo_giocatore["id"])
+    profilo_giocatore["listone"] = dati_listone(profilo_giocatore["id"])
+
     st.info(
         f"Profilo trovato: {profilo_giocatore['nome']} · "
         f"{profilo_giocatore['squadra']} · "
         f"Ruoli: {profilo_giocatore['ruoli_mantra'] or 'non disponibili'}"
+    )
+
+    dati = profilo_giocatore["listone"]
+    if dati:
+        valori = st.columns(4)
+        valori[0].metric("Quotazione Mantra", dati["qa_mantra"] if dati["qa_mantra"] is not None else "—")
+        valori[1].metric("FVM Mantra", dati["fvm_mantra"] if dati["fvm_mantra"] is not None else "—")
+        valori[2].metric("Fantamedia", dati["fanta_media"] or "—")
+        valori[3].metric("Presenze", dati["presenze"] if dati["presenze"] is not None else "—")
+
+    possessore = profilo_giocatore["proprietario"]
+    if possessore and possessore["mia"]:
+        st.warning(f"È già nella tua rosa (pagato {possessore['costo']}).")
+    elif possessore:
+        st.warning(
+            f"Non è libero: appartiene a {possessore['squadra']} "
+            f"(pagato {possessore['costo']})."
+        )
+    else:
+        st.success("Svincolato: puoi acquistarlo.")
+elif giocatore:
+    st.caption(
+        "Nessun profilo univoco: prova con il nome del listone (es. \"Martinez L.\")."
     )
 
 

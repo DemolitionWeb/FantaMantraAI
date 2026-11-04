@@ -1,3 +1,4 @@
+from db.calendario import adesso_utc
 from db.database import get_connection
 from squadre import nome_canonico
 
@@ -22,6 +23,7 @@ def prossima_partita(squadra):
             stato
         FROM partite
         WHERE stato = 'scheduled'
+          AND kickoff_utc >= ?
           AND (
               squadra_casa = ?
               OR squadra_trasferta = ?
@@ -29,7 +31,7 @@ def prossima_partita(squadra):
         ORDER BY kickoff_utc ASC
         LIMIT 1
         """,
-        (squadra, squadra),
+        (adesso_utc(), squadra, squadra),
     )
 
     partita = cursor.fetchone()

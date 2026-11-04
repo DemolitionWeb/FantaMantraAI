@@ -154,6 +154,82 @@ def riepilogo_squadre(budget=500):
     ]
 
 
+def ultimo_aggiornamento_rose():
+    """Data dell'ultima importazione delle rose, o None."""
+    conn = get_connection()
+    try:
+        return conn.execute(
+            "SELECT MAX(ultimo_aggiornamento) FROM rose_lega"
+        ).fetchone()[0]
+    finally:
+        conn.close()
+
+
+def rose_complete():
+    """Tutti i giocatori in rosa nella lega, con i dati del listone."""
+    conn = get_connection()
+    try:
+        cursore = conn.execute(
+            """
+            SELECT f.nome AS fantasquadra, f.mia, r.costo,
+                   l.giocatore_id, l.nome, l.squadra, l.ruolo_classic,
+                   l.ruoli_mantra, l.qa_mantra, l.fvm_mantra, l.fanta_media,
+                   l.presenze
+            FROM rose_lega r
+            JOIN fantasquadre f ON f.id = r.fantasquadra_id
+            JOIN listone l ON l.giocatore_id = r.giocatore_id
+            ORDER BY f.nome COLLATE NOCASE,
+                     CASE l.ruolo_classic WHEN 'P' THEN 0 WHEN 'D' THEN 1
+                                          WHEN 'C' THEN 2 ELSE 3 END,
+                     r.costo DESC
+            """
+        )
+        nomi = [colonna[0] for colonna in cursore.description]
+        return [dict(zip(nomi, riga)) for riga in cursore.fetchall()]
+    finally:
+        conn.close()
+
+
+def proprietario(giocatore_id):
+    """Squadra della lega che possiede il giocatore, o None se svincolato."""
+    conn = get_connection()
+    try:
+        riga = conn.execute(
+            """
+            SELECT f.nome, f.mia, r.costo
+            FROM rose_lega r JOIN fantasquadre f ON f.id = r.fantasquadra_id
+            WHERE r.giocatore_id = ?
+            """,
+            (giocatore_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    if not riga:
+        return None
+    return {"squadra": riga[0], "mia": bool(riga[1]), "costo": riga[2]}
+
+
+def dati_listone(giocatore_id):
+    """Quotazioni, FVM e rendimento del giocatore dal listone, o None."""
+    conn = get_connection()
+    try:
+        cursore = conn.execute(
+            """
+            SELECT ruolo_classic, ruoli_mantra, qi_mantra, qa_mantra,
+                   fvm_mantra, media_voto, fanta_media, presenze, eta
+            FROM listone WHERE giocatore_id = ?
+            """,
+            (giocatore_id,),
+        )
+        riga = cursore.fetchone()
+        nomi = [colonna[0] for colonna in cursore.description]
+    finally:
+        conn.close()
+
+    return dict(zip(nomi, riga)) if riga else None
+
+
 def svincolati(ruolo_mantra=None):
     """Giocatori del listone non presenti in nessuna rosa della lega,
     ordinati per FVM Mantra decrescente."""
@@ -161,8 +237,9 @@ def svincolati(ruolo_mantra=None):
     try:
         righe = conn.execute(
             """
-            SELECT l.giocatore_id, l.nome, l.squadra, l.ruoli_mantra,
-                   l.qa_mantra, l.fvm_mantra, l.fanta_media, l.presenze
+            SELECT l.giocatore_id, l.nome, l.squadra, l.ruolo_classic,
+                   l.ruoli_mantra, l.qa_mantra, l.fvm_mantra, l.fanta_media,
+                   l.presenze
             FROM listone l
             LEFT JOIN rose_lega r ON r.giocatore_id = l.giocatore_id
             WHERE r.giocatore_id IS NULL
@@ -173,12 +250,13 @@ def svincolati(ruolo_mantra=None):
         conn.close()
 
     risultato = []
-    for gid, nome, squadra, ruoli, qa, fvm, fanta_media, presenze in righe:
+    for gid, nome, squadra, classic, ruoli, qa, fvm, fanta_media, presenze in righe:
         if ruolo_mantra and ruolo_mantra.upper() not in (ruoli or "").split(", "):
             continue
         risultato.append({
             "giocatore_id": gid, "nome": nome, "squadra": squadra,
-            "ruoli_mantra": ruoli, "quotazione": qa, "fvm": fvm,
+            "ruolo_classic": classic, "ruoli_mantra": ruoli,
+            "quotazione": qa, "fvm": fvm,
             "fanta_media": fanta_media, "presenze": presenze,
         })
     return risultato

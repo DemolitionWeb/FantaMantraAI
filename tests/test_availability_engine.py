@@ -45,7 +45,9 @@ def test_prossima_partita_restituisce_la_partita_programmata(monkeypatch):
         "kickoff": "2026-10-04T18:00:00Z",
         "stato": "scheduled",
     }
-    assert connessione.cursoro.parametri == ("Roma", "Roma")
+    # Primo parametro: l'istante attuale, per escludere le partite passate.
+    assert connessione.cursoro.parametri[1:] == ("Roma", "Roma")
+    assert "kickoff_utc >= ?" in connessione.cursoro.query
 
 
 def test_prossima_partita_senza_squadra_restituisce_none():
