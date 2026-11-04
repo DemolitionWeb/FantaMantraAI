@@ -11,12 +11,16 @@ from auction_engine import crediti_rimanenti, offerta_massima, percentuale_budge
 from database import carica_rosa
 from player_identity import trova_giocatore_per_nome
 from staff.roles import CATALOGO_STAFF
+from db.database import crea_database
+from stato_app import leggi_valore
 
 st.set_page_config(
     page_title="Staff visuale | Fantamantra AI",
     page_icon="⚽",
     layout="wide",
 )
+
+crea_database()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,10 +42,9 @@ def carica_prototipo() -> str:
     if "rosa" not in st.session_state:
         st.session_state.rosa = carica_rosa()
 
-    budget = st.session_state.get("budget_iniziale", 500)
+    budget = leggi_valore("budget_iniziale", 500)
     spesa = int(st.session_state.rosa["costo"].sum())
     crediti = crediti_rimanenti(budget, spesa)
-    massima = offerta_massima(budget, spesa)
     numero_giocatori = len(st.session_state.rosa)
     giocatore = escape(
         st.session_state.get("giocatore_in_asta", "")
@@ -167,21 +170,24 @@ if st.button("Chiedi consiglio allo Staff", type="primary"):
     if not giocatore:
         st.warning("Inserisci prima il nome del giocatore.")
     else:
-        rosa = st.session_state.get("rosa", carica_rosa())
+        if "rosa" not in st.session_state:
+            st.session_state.rosa = carica_rosa()
+        rosa = st.session_state.rosa
         spesa = int(rosa["costo"].sum())
-        budget = st.session_state.get("budget_iniziale", 500)
+        budget = leggi_valore("budget_iniziale", 500)
         crediti = crediti_rimanenti(budget, spesa)
-        massima = offerta_massima(budget, spesa)
+        posti = max(leggi_valore("dimensione_rosa", 25) - len(rosa), 0)
+        massima = offerta_massima(budget, spesa, posti_da_riempire=posti)
         contesto = costruisci_contesto_asta(
             budget_iniziale=budget,
             spesa_totale=spesa,
             crediti=crediti,
             percentuale=percentuale_budget_speso(budget, spesa),
-            portieri=st.session_state.get("portieri", 0),
-            difensori=st.session_state.get("difensori", 0),
-            centrocampisti=st.session_state.get("centrocampisti", 0),
-            trequartisti=st.session_state.get("trequartisti", 0),
-            attaccanti=st.session_state.get("attaccanti", 0),
+            portieri=leggi_valore("portieri", 0),
+            difensori=leggi_valore("difensori", 0),
+            centrocampisti=leggi_valore("centrocampisti", 0),
+            trequartisti=leggi_valore("trequartisti", 0),
+            attaccanti=leggi_valore("attaccanti", 0),
             giocatore=giocatore,
             prezzo_attuale=st.session_state.get("prezzo_attuale", 0),
             massima=massima,

@@ -7,6 +7,7 @@ devono essere eseguiti automaticamente durante la raccolta della suite.
 
 
 collect_ignore = [
+    "test_bbs.py",
     "test_convertitore.py",
     "test_match.py",
     "test_match_data.py",

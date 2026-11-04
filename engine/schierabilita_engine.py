@@ -6,7 +6,7 @@ from engine.match_difficult import calcola_match_difficulty
 
 
 def calcola_schierabilita(giocatore_id):
-    analytics = analizza_giocatore(giocatore_id)
+    analytics = analizza_giocatore(giocatore_id) or {}
     form = calcola_form(giocatore_id)
     starter = calcola_starter_probability(giocatore_id)
     disponibilita = analizza_disponibilita(giocatore_id)
@@ -84,7 +84,7 @@ def calcola_schierabilita(giocatore_id):
     # Confidence
     confidence_values = [
         starter.get("data_confidence", 0),
-        form.get("confidence", 0),
+        form.get("confidenza", 0),
         disponibilita.get("confidence", 0),
     ]
 

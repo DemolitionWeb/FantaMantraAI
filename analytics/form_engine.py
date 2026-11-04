@@ -5,16 +5,19 @@ def calcola_form(giocatore_id):
     conn = get_connection()
     cursor = conn.cursor()
 
+    # Le partite più recenti si ordinano per data di calcio d'inizio:
+    # l'id della presenza riflette solo l'ordine di importazione.
     cursor.execute("""
         SELECT
-            minuti,
-            voto,
-            gol,
-            assist,
-            titolare
-        FROM presenze
-        WHERE giocatore_id = ?
-        ORDER BY id DESC
+            p.minuti,
+            p.voto,
+            p.gol,
+            p.assist,
+            p.titolare
+        FROM presenze p
+        LEFT JOIN partite pa ON pa.id = p.partita_id
+        WHERE p.giocatore_id = ?
+        ORDER BY pa.kickoff_utc DESC, p.id DESC
         LIMIT 5
     """, (giocatore_id,))
 
@@ -47,27 +50,25 @@ def calcola_form(giocatore_id):
     gol = sum(int(p[2] or 0) for p in presenze)
     assist = sum(int(p[3] or 0) for p in presenze)
 
-    media_voto = (
-        sum(voti) / len(voti)
-        if voti else 0
-    )
-
     media_minuti = (
         sum(minuti) / len(minuti)
         if minuti else 0
     )
 
-    # Score provvisorio della forma.
-    # 6.0 = 50 punti
-    # 6.5 = 75 punti
-    # 7.0 = 100 punti
-    form_score = max(
-        0,
-        min(
-            100,
-            (media_voto - 5.0) * 50
-        )
-    )
+    # Senza voti validi (solo "senza voto") la forma non è misurabile:
+    # restituire 0 penalizzerebbe il giocatore per un dato mancante.
+    if voti:
+        media_voto = sum(voti) / len(voti)
+
+        # Score provvisorio della forma.
+        # 6.0 = 50 punti
+        # 6.5 = 75 punti
+        # 7.0 = 100 punti
+        form_score = round(max(0, min(100, (media_voto - 5.0) * 50)), 1)
+        media_voto = round(media_voto, 2)
+    else:
+        media_voto = None
+        form_score = None
 
     # Più dati abbiamo, maggiore è la confidenza.
     confidenza = min(
@@ -76,8 +77,8 @@ def calcola_form(giocatore_id):
     )
 
     return {
-        "form_score": round(form_score, 1),
-        "media_voto_recenti": round(media_voto, 2),
+        "form_score": form_score,
+        "media_voto_recenti": media_voto,
         "media_minuti_recenti": round(media_minuti, 1),
         "gol_recenti": gol,
         "assist_recenti": assist,

@@ -20,40 +20,34 @@ def crea_panchina(giocatori, titolari):
         reverse=True,
     )
 
-    portieri = []
-    difensori = []
-    centrocampisti = []
-    attaccanti = []
+    gruppi = (
+        ("POR", {"POR"}, 1),
+        ("DIF", {"DC", "DD", "DS", "E"}, 2),
+        ("CEN", {"M", "C", "T", "W"}, 2),
+        ("ATT", {"A", "PC"}, 2),
+    )
 
-    for giocatore in disponibili:
-        ruoli = normalizza_ruoli(
-            giocatore["ruoli_mantra"]
-        )
+    # Ogni giocatore occupa un solo posto in panchina, anche se i suoi
+    # ruoli Mantra coprono più reparti (es. "E, M").
+    usati = set()
+    panchina = {}
 
-        if "POR" in ruoli:
-            portieri.append(giocatore)
+    for nome_gruppo, ruoli_gruppo, posti in gruppi:
+        scelti = []
 
-        if any(
-            ruolo in ruoli
-            for ruolo in ["DC", "DD", "DS", "E"]
-        ):
-            difensori.append(giocatore)
+        for giocatore in disponibili:
+            if len(scelti) >= posti:
+                break
 
-        if any(
-            ruolo in ruoli
-            for ruolo in ["M", "C", "T", "W"]
-        ):
-            centrocampisti.append(giocatore)
+            if giocatore["giocatore_id"] in usati:
+                continue
 
-        if any(
-            ruolo in ruoli
-            for ruolo in ["A", "PC"]
-        ):
-            attaccanti.append(giocatore)
+            ruoli = normalizza_ruoli(giocatore["ruoli_mantra"])
 
-    return {
-        "POR": portieri[:1],
-        "DIF": difensori[:2],
-        "CEN": centrocampisti[:2],
-        "ATT": attaccanti[:2],
-    }
+            if ruoli_gruppo.intersection(ruoli):
+                scelti.append(giocatore)
+                usati.add(giocatore["giocatore_id"])
+
+        panchina[nome_gruppo] = scelti
+
+    return panchina

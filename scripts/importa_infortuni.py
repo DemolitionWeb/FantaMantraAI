@@ -1,6 +1,6 @@
 from api.injuries import importa_infortuni
 from db.database import get_connection
-from db.infortuni import salva_infortunio
+from db.infortuni import chiudi_infortuni_assenti, salva_infortunio
 
 
 FONTE = "BBS"
@@ -75,6 +75,7 @@ def main():
 
     matchati = 0
     non_matchati = []
+    giocatori_infortunati = []
 
     for record in records:
         nome = record.get("full_name") or record.get("display_name")
@@ -107,10 +108,19 @@ def main():
         )
 
         matchati += 1
+        giocatori_infortunati.append(giocatore_id)
 
         print(
             f"[OK] {nome} -> {giocatore_id} ({metodo})"
         )
+
+    # Una lista vuota può indicare una risposta anomala della fonte:
+    # in quel caso non si chiude nulla per non segnare tutti come guariti.
+    if records:
+        chiusi = chiudi_infortuni_assenti(FONTE, giocatori_infortunati)
+        print(f"Infortuni chiusi (giocatori rientrati): {chiusi}")
+    else:
+        print("Lista vuota: nessun infortunio chiuso automaticamente.")
 
     print()
     print("=== RISULTATO ===")

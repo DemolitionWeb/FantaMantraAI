@@ -84,3 +84,38 @@ def salva_infortunio(
 
     conn.commit()
     conn.close()
+
+
+def chiudi_infortuni_assenti(fonte, giocatori_ancora_infortunati):
+    """Segna come risolti gli infortuni attivi non più presenti nella fonte.
+
+    Va chiamata dopo un'importazione completa della lista infortuni: chi non
+    compare più nella lista è tornato disponibile. Restituisce quanti
+    infortuni sono stati chiusi.
+    """
+    ancora_attivi = list(set(giocatori_ancora_infortunati))
+    ultimo_aggiornamento = datetime.now(timezone.utc).isoformat()
+
+    segnaposti = ", ".join("?" for _ in ancora_attivi)
+    filtro = (
+        f"AND giocatore_id NOT IN ({segnaposti})" if ancora_attivi else ""
+    )
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        f"""
+        UPDATE infortuni
+        SET stato = 'risolto',
+            ultimo_aggiornamento = ?
+        WHERE fonte = ?
+          AND stato = 'attivo'
+          {filtro}
+        """,
+        (ultimo_aggiornamento, fonte, *ancora_attivi),
+    )
+    chiusi = cursor.rowcount
+    conn.commit()
+    conn.close()
+
+    return chiusi

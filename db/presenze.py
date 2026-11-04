@@ -1,4 +1,5 @@
 import unicodedata
+from datetime import date
 import re
 import sqlite3
 
@@ -168,7 +169,7 @@ def registra_giocatore_bbs(giocatore):
         "numero_maglia": giocatore.get("jersey_number"),
         "fonte_id": fonte_id,
         "fonte": "BBS",
-        "ultimo_aggiornamento": "2026-09-24",
+        "ultimo_aggiornamento": date.today().isoformat(),
     }
 
     from db.database import salva_giocatori

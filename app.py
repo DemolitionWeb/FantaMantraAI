@@ -17,6 +17,10 @@ from database import (
     giocatore_esistente,
     salva_rosa,
 )
+from db.database import crea_database
+from stato_app import input_persistente
+
+crea_database()
 
 if "rosa" not in st.session_state:
     st.session_state.rosa = carica_rosa()
@@ -44,59 +48,38 @@ with st.expander("Conosci lo Staff"):
 
 st.sidebar.header("💰 Budget")
 
-budget_iniziale = st.sidebar.number_input(
+budget_iniziale = input_persistente(
+    st.sidebar,
     "Budget iniziale",
+    "budget_iniziale",
+    500,
     min_value=1,
-    value=500,
-    step=1,
-    key="budget_iniziale",
+)
+
+dimensione_rosa = input_persistente(
+    st.sidebar,
+    "Giocatori da acquistare in totale",
+    "dimensione_rosa",
+    25,
+    min_value=1,
 )
 
 spesa_totale = int(st.session_state.rosa["costo"].sum())
+posti_da_riempire = max(dimensione_rosa - len(st.session_state.rosa), 0)
 
 st.sidebar.divider()
 
 st.sidebar.header("👥 La mia rosa")
 
-portieri = st.sidebar.number_input(
-    "Portieri",
-    min_value=0,
-    value=0,
-    step=1,
-    key="portieri",
+portieri = input_persistente(st.sidebar, "Portieri", "portieri", 0)
+difensori = input_persistente(st.sidebar, "Difensori", "difensori", 0)
+centrocampisti = input_persistente(
+    st.sidebar, "Centrocampisti", "centrocampisti", 0
 )
-
-difensori = st.sidebar.number_input(
-    "Difensori",
-    min_value=0,
-    value=0,
-    step=1,
-    key="difensori",
+trequartisti = input_persistente(
+    st.sidebar, "Trequartisti", "trequartisti", 0
 )
-
-centrocampisti = st.sidebar.number_input(
-    "Centrocampisti",
-    min_value=0,
-    value=0,
-    step=1,
-    key="centrocampisti",
-)
-
-trequartisti = st.sidebar.number_input(
-    "Trequartisti",
-    min_value=0,
-    value=0,
-    step=1,
-    key="trequartisti",
-)
-
-attaccanti = st.sidebar.number_input(
-    "Attaccanti",
-    min_value=0,
-    value=0,
-    step=1,
-    key="attaccanti",
-)
+attaccanti = input_persistente(st.sidebar, "Attaccanti", "attaccanti", 0)
 
 
 crediti = crediti_rimanenti(
@@ -112,6 +95,7 @@ percentuale = percentuale_budget_speso(
 massima = offerta_massima(
     budget_iniziale,
     spesa_totale,
+    posti_da_riempire=posti_da_riempire,
 )
 
 

@@ -44,7 +44,10 @@ def crea_database():
             squadra TEXT,
             ruoli_mantra TEXT,
             posizione_generica TEXT,
-            numero_maglia INTEGER
+            numero_maglia INTEGER,
+            fonte_id TEXT,
+            fonte TEXT,
+            ultimo_aggiornamento TEXT
         )
     """)
 
@@ -129,6 +132,11 @@ def crea_database():
 
     conn.commit()
     conn.close()
+
+    # Database creati con versioni precedenti dello schema: aggiunge le
+    # colonne mancanti di giocatori senza toccare i dati esistenti.
+    aggiorna_schema_giocatori()
+
 
 def salva_player_source(giocatore_id, fonte, fonte_id):
     conn = get_connection()
@@ -455,15 +463,15 @@ def salva_identificativo_fonte(
         ),
     )
 
-    # Mantieni aggiornato anche il registro storico usato dalle prime
-    # importazioni. I due registri restano leggibili, ma condividono ora lo
-    # stesso collegamento canonico.
+    # Mantieni aggiornato anche il registro player_sources, usato da
+    # trova_giocatore come chiave principale. I due registri condividono
+    # così lo stesso collegamento canonico.
     try:
         cursor.execute(
             """
-            INSERT OR REPLACE INTO giocatori_fonti
-                (giocatore_id, fonte, fonte_id, ultimo_aggiornamento)
-            VALUES (?, ?, ?, date('now'))
+            INSERT OR REPLACE INTO player_sources
+                (giocatore_id, fonte, fonte_id)
+            VALUES (?, ?, ?)
             """,
             (giocatore_id, fonte, str(fonte_id)),
         )
