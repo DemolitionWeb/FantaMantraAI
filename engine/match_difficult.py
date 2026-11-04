@@ -1,7 +1,9 @@
 from db.database import get_connection
+from squadre import nome_canonico
 
 
 def calcola_match_difficulty(squadra, partita_id=None):
+    squadra = nome_canonico(squadra)
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -48,6 +50,9 @@ def calcola_match_difficulty(squadra, partita_id=None):
         kickoff,
         stato
     ) = partita
+
+    casa = nome_canonico(casa)
+    trasferta = nome_canonico(trasferta)
 
     if squadra == casa:
         casa_trasferta = "casa"

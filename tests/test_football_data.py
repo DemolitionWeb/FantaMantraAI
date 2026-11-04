@@ -91,7 +91,7 @@ def test_nome_squadra_allineato_al_listone():
     assert football_data.nome_squadra({"shortName": "Como 1907"}) == "Como"
     assert football_data.nome_squadra({"shortName": "Venezia FC"}) == "Venezia"
     assert football_data.nome_squadra({"shortName": "Inter"}) == "Inter"
-    assert football_data.nome_squadra({"name": "AS Roma"}) == "AS Roma"
+    assert football_data.nome_squadra({"name": "AS Roma"}) == "Roma"
 
 
 def test_client_invia_la_chiave_nell_intestazione(monkeypatch):

@@ -6,11 +6,10 @@ https://www.football-data.org/client/register e va messa nel file .env
 come FOOTBALL_DATA_API_TOKEN.
 """
 
-import re
-
 import requests
 
 import config
+from squadre import nome_canonico
 
 
 BASE_URL = "https://api.football-data.org/v4"
@@ -61,10 +60,9 @@ def get_partite(competizione=SERIE_A, giornata=None, stato=None):
 
 
 def nome_squadra(squadra):
-    """Nome breve allineato al listone: "Como 1907" -> "Como",
+    """Nome allineato al listone: "Como 1907" -> "Como",
     "Venezia FC" -> "Venezia"."""
-    nome = squadra.get("shortName") or squadra.get("name") or ""
-    return re.sub(r"\s+(FC|\d{4})$", "", nome.strip())
+    return nome_canonico(squadra.get("shortName") or squadra.get("name") or "")
 
 
 def trasforma_classifica(risposta):

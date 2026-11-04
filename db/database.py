@@ -1,6 +1,8 @@
 import sqlite3
 from pathlib import Path
 
+from squadre import nome_canonico
+
 
 DB_PATH = Path(__file__).parent / "fantamantra.db"
 
@@ -262,8 +264,8 @@ def salva_partite(partite):
                 partita.get("id"),
                 partita.get("campionato"),
                 partita.get("giornata"),
-                partita.get("squadra_casa"),
-                partita.get("squadra_trasferta"),
+                nome_canonico(partita.get("squadra_casa")),
+                nome_canonico(partita.get("squadra_trasferta")),
                 partita.get("kickoff_utc"),
                 partita.get("stato"),
                 partita.get("gol_casa"),
@@ -335,7 +337,7 @@ def salva_giocatori(giocatori):
             (
                 giocatore.get("id"),
                 giocatore.get("nome"),
-                giocatore.get("squadra"),
+                nome_canonico(giocatore.get("squadra")),
                 giocatore.get("ruoli_mantra"),
                 giocatore.get("posizione_generica"),
                 giocatore.get("numero_maglia"),

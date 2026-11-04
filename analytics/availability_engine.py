@@ -1,10 +1,13 @@
 from db.database import get_connection
+from squadre import nome_canonico
 
 
 def prossima_partita(squadra):
     """Restituisce la prossima partita programmata della squadra."""
     if not squadra:
         return None
+
+    squadra = nome_canonico(squadra)
 
     conn = get_connection()
     cursor = conn.cursor()

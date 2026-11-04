@@ -4,6 +4,7 @@ import re
 import sqlite3
 
 from db.database import get_connection, salva_player_source
+from squadre import nome_canonico
 
 
 def normalizza_nome(nome):
@@ -27,7 +28,9 @@ def normalizza_nome(nome):
 
 def normalizza_squadra(squadra):
     """Normalizza il nome della squadra senza fare match troppo permissivi."""
-    squadra = normalizza_nome(squadra)
+    # Prima il nome canonico ("AC Milan" -> "Milan"), poi la forma
+    # normalizzata usata nei confronti.
+    squadra = normalizza_nome(nome_canonico(squadra))
     squadra = re.sub(r"\b(fc|ac|ss|calcio)\b", "", squadra)
     return " ".join(squadra.split())
 
@@ -152,7 +155,7 @@ def trova_giocatore(nome, squadra, fonte_id=None):
 
 def registra_giocatore_bbs(giocatore):
     nome = giocatore.get("name")
-    squadra = giocatore.get("team_name")
+    squadra = nome_canonico(giocatore.get("team_name"))
     fonte_id = giocatore.get("id")
 
     if not nome or not squadra or not fonte_id:

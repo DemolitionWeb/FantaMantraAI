@@ -1,6 +1,7 @@
 from api.injuries import importa_infortuni
 from db.database import get_connection
 from db.infortuni import chiudi_infortuni_assenti, salva_infortunio
+from squadre import stessa_squadra
 
 
 FONTE = "BBS"
@@ -43,7 +44,6 @@ def trova_giocatore(nome, fonte_id=None, squadra=None):
 
     # 2. Fallback: nome
     nome_norm = normalizza_nome(nome)
-    squadra_norm = normalizza_nome(squadra)
 
     cursor.execute(
         """
@@ -57,7 +57,7 @@ def trova_giocatore(nome, fonte_id=None, squadra=None):
 
     for giocatore_id, nome_db, squadra_db in giocatori:
         if (normalizza_nome(nome_db) == nome_norm and
-                (not squadra_norm or normalizza_nome(squadra_db) == squadra_norm)):
+                (not squadra or stessa_squadra(squadra_db, squadra))):
             return giocatore_id, "nome"
 
     return None, None
