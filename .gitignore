@@ -6,3 +6,4 @@ __pycache__/
 
 # Rose della lega: dati privati, restano solo in locale
 data/rose_lega_*.xlsx
+.pytest_tmp/
