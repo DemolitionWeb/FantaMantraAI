@@ -130,6 +130,30 @@ def crea_database():
     )
 """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS classifica (
+        stagione TEXT,
+        tipo TEXT NOT NULL,
+        squadra_id INTEGER NOT NULL,
+        squadra TEXT NOT NULL,
+        squadra_nome_completo TEXT,
+        sigla TEXT,
+        posizione INTEGER,
+        punti INTEGER,
+        giocate INTEGER,
+        vinte INTEGER,
+        pareggiate INTEGER,
+        perse INTEGER,
+        gol_fatti INTEGER,
+        gol_subiti INTEGER,
+        differenza_reti INTEGER,
+        giornata INTEGER,
+        fonte TEXT,
+        ultimo_aggiornamento TEXT,
+        PRIMARY KEY (tipo, squadra_id)
+    )
+""")
+
     conn.commit()
     conn.close()
 
