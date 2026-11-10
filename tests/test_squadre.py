@@ -1,4 +1,5 @@
 import shutil
+from datetime import datetime, timedelta, timezone
 import tempfile
 from pathlib import Path
 
@@ -56,7 +57,7 @@ def test_partite_salvate_con_nome_canonico_e_trovabili(db_vuoto):
     db_vuoto.salva_partite([{
         "id": "m1", "squadra_casa": "AC Milan",
         "squadra_trasferta": "Inter Milan",
-        "kickoff_utc": "2026-11-08T19:45:00Z", "stato": "scheduled",
+        "kickoff_utc": (datetime.now(timezone.utc) + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%SZ"), "stato": "scheduled",
     }])
 
     partita = prossima_partita("Milan")
